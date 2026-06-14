@@ -13,7 +13,11 @@
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
-    "build-storybook": "CI=1 STORYBOOK_DISABLE_TELEMETRY=1 storybook build"
+    "build-storybook": "CI=1 STORYBOOK_DISABLE_TELEMETRY=1 storybook build",
+    "pages:create": "wrangler pages project create nngn-dev --production-branch main",
+    "deploy": "bun run deploy:production",
+    "deploy:production": "bun run build && wrangler pages deploy dist --project-name nngn-dev --branch main",
+    "deploy:preview": "bun run build && wrangler pages deploy dist --project-name nngn-dev --branch preview"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",

@@ -53,3 +53,32 @@ bun run typecheck
 bun run build
 bun run build-storybook
 ```
+
+## Cloudflare Pages
+
+Use these build settings:
+
+- Build command: `bun run build`
+- Build output directory: `dist`
+- Root directory: repository root
+
+Cloudflare Pages v3 includes Bun. If you want to pin the exact Bun version used locally, set the Pages build environment variable `BUN_VERSION=1.3.13`.
+
+For direct upload deploys:
+
+```sh
+bun run deploy
+```
+
+For first-time setup with Wrangler:
+
+```sh
+bun run pages:create
+```
+
+For GitHub Actions auto deploys, add these repository secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+The API token needs Cloudflare Pages edit access. After that, pushes to `main` deploy `dist` to the `nngn-dev` Pages project.
