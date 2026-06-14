@@ -2,5 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nngn-dev",
   "compatibility_date": "2026-06-14",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "build": {
+    "command": "bun install && bun run build"
+  }
 }
