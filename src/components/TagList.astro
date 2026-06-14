@@ -1,0 +1,39 @@
+---
+import { toTagPath } from "../lib/tags";
+
+interface Props {
+  tags: readonly string[];
+  linked?: boolean;
+  compact?: boolean;
+}
+
+const { tags, linked = false, compact = false } = Astro.props;
+const itemClass = compact
+  ? "rounded-md border border-[var(--color-line)] px-2 py-1 text-xs"
+  : "rounded-md border border-[var(--color-line)] px-2.5 py-1 text-sm";
+---
+
+{
+  tags.length > 0 ? (
+    <ul class="flex flex-wrap gap-2" aria-label="Tags">
+      {tags.map((tag) => (
+        <li>
+          {
+            linked ? (
+              <a
+                class={`${itemClass} block bg-white text-[var(--color-muted)] hover:border-[var(--color-blue)] hover:text-[var(--color-blue)]`}
+                href={toTagPath(tag)}
+              >
+                {tag}
+              </a>
+            ) : (
+              <span class={`${itemClass} block bg-[var(--color-faint)] text-[var(--color-muted)]`}>
+                {tag}
+              </span>
+            )
+          }
+        </li>
+      ))}
+    </ul>
+  ) : null
+}

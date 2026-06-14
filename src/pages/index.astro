@@ -1,0 +1,84 @@
+---
+import { getCollection } from "astro:content";
+import BlogCard from "../components/BlogCard.astro";
+import GitHubGrass from "../components/GitHubGrass.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { estimateReadingMinutes, formatDate, formatDateTime, getPostUrl, isPublishedPost, sortPosts } from "../lib/blog";
+import { uniqueTags } from "../lib/tags";
+
+const posts = sortPosts((await getCollection("blog")).filter(isPublishedPost));
+const latestPosts = posts.slice(0, 3);
+const tags = uniqueTags(posts);
+---
+
+<BaseLayout>
+  <SiteHeader />
+  <main>
+    <section class="content-grid grid gap-10 py-12 md:grid-cols-[1fr_420px] md:items-end md:py-16">
+      <div class="max-w-3xl">
+        <p class="font-mono text-sm uppercase text-[var(--color-rust)]">ningen</p>
+        <h1 class="mt-5 text-balance text-5xl font-semibold leading-none text-[var(--color-ink)] md:text-7xl">
+          Links, notes, and shipped work.
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
+          A small developer site for public links and markdown notes. The useful things are close to the top:
+          GitHub activity, recent writing, and tags.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            class="button-primary rounded-md bg-[var(--color-ink)] px-4 py-2.5 text-sm font-semibold hover:bg-[#263244]"
+            href="https://github.com/ningen"
+          >
+            Open GitHub
+          </a>
+          <a
+            class="rounded-md border border-[var(--color-line)] bg-white px-4 py-2.5 text-sm font-semibold hover:border-[#b9c5d6]"
+            href="/blog/"
+          >
+            Read blog
+          </a>
+        </div>
+      </div>
+      <GitHubGrass username="ningen" />
+    </section>
+
+    <section class="content-grid pb-16">
+      <SectionHeading label="Writing" title="Latest posts" href="/blog/" action="All posts" />
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        {
+          latestPosts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              href={getPostUrl(post)}
+              date={formatDate(post.data.publishedAt)}
+              dateTime={formatDateTime(post.data.publishedAt)}
+              readingTime={estimateReadingMinutes(post.body)}
+              tags={post.data.tags}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="content-grid pb-20">
+      <SectionHeading label="Index" title="Tags" />
+      <ul class="mt-6 flex flex-wrap gap-2">
+        {
+          tags.map((tag) => (
+            <li>
+              <a
+                class="block rounded-md border border-[var(--color-line)] bg-white px-3 py-2 text-sm text-[var(--color-muted)] hover:border-[var(--color-blue)] hover:text-[var(--color-blue)]"
+                href={`/blog/tags/${encodeURIComponent(tag)}/`}
+              >
+                {tag}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+:root {
+  color-scheme: light;
+  --color-page: #f8fafc;
+  --color-panel: #ffffff;
+  --color-ink: #111827;
+  --color-muted: #5b6472;
+  --color-faint: #eef2f7;
+  --color-line: #d9e0ea;
+  --color-blue: #2356d8;
+  --color-green: #166534;
+  --color-rust: #a44611;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: #dbeafe;
+  color: var(--color-ink);
+}
+
+.page-shell {
+  min-height: 100vh;
+  background: var(--color-page);
+}
+
+.content-grid {
+  width: min(1120px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.button-primary {
+  color: #f8fafc;
+}
+
+.button-primary:hover {
+  color: #f8fafc;
+}
+
+.blog-prose {
+  color: var(--color-ink);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.blog-prose :where(h2, h3, h4) {
+  line-height: 1.25;
+  margin-block: 2.2em 0.6em;
+}
+
+.blog-prose h2 {
+  font-size: clamp(1.45rem, 1.2rem + 1vw, 2rem);
+}
+
+.blog-prose h3 {
+  font-size: 1.28rem;
+}
+
+.blog-prose :where(p, ul, ol, blockquote, pre, table) {
+  margin-block: 1.1em;
+}
+
+.blog-prose :where(ul, ol) {
+  padding-inline-start: 1.3em;
+}
+
+.blog-prose li + li {
+  margin-top: 0.35em;
+}
+
+.blog-prose a {
+  color: var(--color-blue);
+}
+
+.blog-prose code {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: var(--color-faint);
+  padding: 0.12em 0.32em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.blog-prose pre {
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: #111827;
+  color: #f8fafc;
+  padding: 1rem;
+}
+
+.blog-prose pre code {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.blog-prose blockquote {
+  border-left: 3px solid var(--color-green);
+  color: var(--color-muted);
+  margin-inline: 0;
+  padding-left: 1rem;
+}
+
+.blog-prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin-block: 2rem;
+}

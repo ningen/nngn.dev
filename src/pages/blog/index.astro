@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+import BlogCard from "../../components/BlogCard.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import TagList from "../../components/TagList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { estimateReadingMinutes, formatDate, formatDateTime, getPostUrl, isPublishedPost, sortPosts } from "../../lib/blog";
+import { uniqueTags } from "../../lib/tags";
+
+const posts = sortPosts((await getCollection("blog")).filter(isPublishedPost));
+const tags = uniqueTags(posts);
+---
+
+<BaseLayout title="Blog" description="Markdown notes from nngn.dev.">
+  <SiteHeader />
+  <main class="content-grid py-12 md:py-16">
+    <div class="max-w-3xl">
+      <p class="font-mono text-sm uppercase text-[var(--color-rust)]">Blog</p>
+      <h1 class="mt-5 text-balance text-5xl font-semibold leading-tight md:text-6xl">Markdown notes</h1>
+      <p class="mt-5 text-lg leading-8 text-[var(--color-muted)]">
+        Articles live in <code class="rounded-md border border-[var(--color-line)] bg-white px-1.5 py-0.5 font-mono text-sm">src/content/blog</code>
+        and are built into static pages.
+      </p>
+    </div>
+
+    <div class="mt-10">
+      <TagList tags={tags} linked />
+    </div>
+
+    <section class="mt-12">
+      <SectionHeading label="Archive" title={`${posts.length} posts`} />
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        {
+          posts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              href={getPostUrl(post)}
+              date={formatDate(post.data.publishedAt)}
+              dateTime={formatDateTime(post.data.publishedAt)}
+              readingTime={estimateReadingMinutes(post.body)}
+              tags={post.data.tags}
+            />
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>

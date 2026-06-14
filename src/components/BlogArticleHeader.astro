@@ -1,0 +1,36 @@
+---
+import TagList from "./TagList.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  date: string;
+  dateTime: string;
+  updatedAt?: string;
+  updatedAtTime?: string;
+  readingTime: string;
+  tags: readonly string[];
+}
+
+const { title, description, date, dateTime, updatedAt, updatedAtTime, readingTime, tags } = Astro.props;
+---
+
+<header class="content-grid py-12 md:py-16">
+  <a class="text-sm font-medium text-[var(--color-blue)] underline" href="/blog/">Back to blog</a>
+  <div class="mt-8 max-w-3xl">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+      <time datetime={dateTime}>{date}</time>
+      <span aria-hidden="true">/</span>
+      <span>{readingTime}</span>
+      {updatedAt ? <span aria-hidden="true">/</span> : null}
+      {updatedAt && updatedAtTime ? <time datetime={updatedAtTime}>Updated {updatedAt}</time> : null}
+    </div>
+    <h1 class="mt-4 text-balance text-4xl font-semibold leading-tight text-[var(--color-ink)] md:text-6xl">
+      {title}
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">{description}</p>
+    <div class="mt-7">
+      <TagList tags={tags} linked />
+    </div>
+  </div>
+</header>

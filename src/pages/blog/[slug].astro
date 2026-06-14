@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from "astro:content";
+import BlogArticleHeader from "../../components/BlogArticleHeader.astro";
+import BlogProse from "../../components/BlogProse.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { estimateReadingMinutes, formatDate, formatDateTime, isPublishedPost } from "../../lib/blog";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog")).filter(isPublishedPost);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const publishedAt = formatDate(post.data.publishedAt);
+const publishedAtTime = formatDateTime(post.data.publishedAt);
+const updatedAt = post.data.updatedAt ? formatDate(post.data.updatedAt) : undefined;
+const updatedAtTime = post.data.updatedAt ? formatDateTime(post.data.updatedAt) : undefined;
+const readingTime = estimateReadingMinutes(post.body);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <SiteHeader />
+  <main>
+    <BlogArticleHeader
+      title={post.data.title}
+      description={post.data.description}
+      date={publishedAt}
+      dateTime={publishedAtTime}
+      updatedAt={updatedAt}
+      updatedAtTime={updatedAtTime}
+      readingTime={readingTime}
+      tags={post.data.tags}
+    />
+    <BlogProse>
+      <Content />
+    </BlogProse>
+  </main>
+</BaseLayout>

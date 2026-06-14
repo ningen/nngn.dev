@@ -1,0 +1,24 @@
+---
+interface Props {
+  label: string;
+  title: string;
+  href?: string;
+  action?: string;
+}
+
+const { label, title, href, action } = Astro.props;
+---
+
+<div class="flex flex-wrap items-end justify-between gap-4 border-t border-[var(--color-line)] pt-8">
+  <div>
+    <p class="font-mono text-xs uppercase text-[var(--color-rust)]">{label}</p>
+    <h2 class="mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h2>
+  </div>
+  {
+    href && action ? (
+      <a class="text-sm font-medium text-[var(--color-blue)] underline" href={href}>
+        {action}
+      </a>
+    ) : null
+  }
+</div>

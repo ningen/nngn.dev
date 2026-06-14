@@ -1,0 +1,9 @@
+@import "../src/styles/global.css";
+
+body {
+  background: var(--color-page);
+}
+
+#storybook-root {
+  min-height: 100vh;
+}

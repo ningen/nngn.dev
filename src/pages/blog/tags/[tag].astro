@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import BlogCard from "../../../components/BlogCard.astro";
+import SiteHeader from "../../../components/SiteHeader.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { estimateReadingMinutes, formatDate, formatDateTime, getPostUrl, isPublishedPost, sortPosts } from "../../../lib/blog";
+import { uniqueTags } from "../../../lib/tags";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog")).filter(isPublishedPost);
+  return uniqueTags(posts).map((tag) => ({
+    params: { tag: encodeURIComponent(tag) },
+    props: {
+      tag,
+      posts: sortPosts(posts.filter((post) => post.data.tags.includes(tag))),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`Tag: ${tag}`} description={`Posts tagged ${tag}.`}>
+  <SiteHeader />
+  <main class="content-grid py-12 md:py-16">
+    <a class="text-sm font-medium text-[var(--color-blue)] underline" href="/blog/">Back to blog</a>
+    <p class="mt-8 font-mono text-sm uppercase text-[var(--color-rust)]">Tag</p>
+    <h1 class="mt-4 text-5xl font-semibold">{tag}</h1>
+    <div class="mt-10 grid gap-4 md:grid-cols-2">
+      {
+        posts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            href={getPostUrl(post)}
+            date={formatDate(post.data.publishedAt)}
+            dateTime={formatDateTime(post.data.publishedAt)}
+            readingTime={estimateReadingMinutes(post.body)}
+            tags={post.data.tags}
+          />
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>

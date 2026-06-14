@@ -1,0 +1,29 @@
+---
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/blog/", label: "Blog" },
+  { href: "https://github.com/ningen", label: "GitHub" },
+];
+---
+
+<header class="border-b border-[var(--color-line)] bg-white/88 backdrop-blur">
+  <div class="content-grid flex min-h-16 items-center justify-between gap-5 py-3">
+    <a class="font-mono text-sm font-semibold" href="/">nngn.dev</a>
+    <nav aria-label="Primary navigation">
+      <ul class="flex flex-wrap items-center justify-end gap-1 text-sm text-[var(--color-muted)]">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                class="rounded-md px-3 py-2 hover:bg-[var(--color-faint)] hover:text-[var(--color-ink)]"
+                href={link.href}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

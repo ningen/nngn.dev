@@ -1,0 +1,29 @@
+---
+interface Props {
+  username?: string;
+}
+
+const { username = "ningen" } = Astro.props;
+const profileUrl = `https://github.com/${username}`;
+const chartUrl = `https://ghchart.rshah.org/166534/${username}`;
+---
+
+<section class="rounded-lg border border-[var(--color-line)] bg-white p-4 shadow-sm" aria-labelledby="github-activity-title">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="font-mono text-xs uppercase text-[var(--color-green)]">GitHub</p>
+      <h2 id="github-activity-title" class="mt-1 text-lg font-semibold">public activity</h2>
+    </div>
+    <a class="text-sm font-medium text-[var(--color-blue)] underline" href={profileUrl}>@{username}</a>
+  </div>
+  <a class="mt-5 block overflow-x-auto rounded-md border border-[var(--color-line)] bg-[var(--color-faint)] p-3" href={profileUrl}>
+    <img
+      src={chartUrl}
+      width="663"
+      height="104"
+      loading="lazy"
+      decoding="async"
+      alt={`${username}'s GitHub contribution calendar`}
+    />
+  </a>
+</section>

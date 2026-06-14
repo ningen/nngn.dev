@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+storybook-static/
+.DS_Store
+*.log
