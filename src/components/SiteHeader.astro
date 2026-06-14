@@ -2,12 +2,11 @@
 const links = [
   { href: "/", label: "Home" },
   { href: "/blog/", label: "Blog" },
-  { href: "/search/", label: "Search" },
   { href: "https://github.com/ningen", label: "GitHub" },
 ];
 ---
 
-<header class="border-b border-[var(--color-line)] bg-white/88 backdrop-blur">
+<header class="border-b border-[var(--color-line)] bg-white/88 backdrop-blur" data-pagefind-ignore>
   <div class="content-grid flex min-h-16 items-center justify-between gap-5 py-3">
     <a class="font-mono text-sm font-semibold" href="/">nngn.dev</a>
     <nav aria-label="Primary navigation">
@@ -24,7 +23,365 @@ const links = [
             </li>
           ))
         }
+        <li>
+          <button
+            class="site-search-trigger inline-flex size-9 items-center justify-center rounded-md hover:bg-[var(--color-faint)] hover:text-[var(--color-ink)]"
+            type="button"
+            aria-label="Open search"
+            aria-controls="site-search-panel"
+            aria-expanded="false"
+          >
+            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-3.5-3.5"></path>
+            </svg>
+          </button>
+        </li>
       </ul>
     </nav>
   </div>
 </header>
+
+<div id="site-search-backdrop" class="site-search-backdrop" data-pagefind-ignore hidden></div>
+<div id="site-search-panel" class="site-search-panel" role="dialog" aria-label="Search posts" data-pagefind-ignore hidden>
+  <div class="flex items-center gap-3 border-b border-[var(--color-line)] p-3">
+    <label class="sr-only" for="site-search-input">Search query</label>
+    <div class="site-search-field">
+      <svg aria-hidden="true" class="size-4 shrink-0 text-[var(--color-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-3.5-3.5"></path>
+      </svg>
+      <input
+        id="site-search-input"
+        type="search"
+        autocomplete="off"
+        placeholder="Search posts..."
+        aria-describedby="site-search-status"
+      />
+    </div>
+  </div>
+
+  <div class="p-4">
+    <p id="site-search-status" class="min-h-5 font-mono text-xs text-[var(--color-muted)]" aria-live="polite">
+      Type a word or phrase to search the blog.
+    </p>
+    <div id="site-search-results" class="mt-4 grid gap-3"></div>
+  </div>
+</div>
+
+<script is:inline type="module">
+  const trigger = document.querySelector(".site-search-trigger");
+  const backdrop = document.querySelector("#site-search-backdrop");
+  const panel = document.querySelector("#site-search-panel");
+  const input = document.querySelector("#site-search-input");
+  const status = document.querySelector("#site-search-status");
+  const resultsList = document.querySelector("#site-search-results");
+  let pagefind;
+  let searchRun = 0;
+  let searchTimer;
+
+  if (
+    !(trigger instanceof HTMLButtonElement) ||
+    !(backdrop instanceof HTMLElement) ||
+    !(panel instanceof HTMLElement) ||
+    !(input instanceof HTMLInputElement) ||
+    !status ||
+    !resultsList
+  ) {
+    throw new Error("Search header markup is missing required elements.");
+  }
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  const renderTags = (tags) => {
+    if (!tags) return "";
+
+    return tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+      .map((tag) => `<li><span class="site-search-tag">${escapeHtml(tag)}</span></li>`)
+      .join("");
+  };
+
+  const renderResult = (result) => {
+    const title = result.meta?.title || "Untitled";
+    const description = result.meta?.description;
+    const date = result.meta?.date;
+    const tags = renderTags(result.meta?.tags);
+    const excerpt = result.excerpt || (description ? escapeHtml(description) : "");
+
+    return `
+      <article class="site-search-result">
+        <div class="site-search-result-meta">
+          ${date ? `<time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time>` : ""}
+        </div>
+        <h2>
+          <a href="${escapeHtml(result.url)}">${escapeHtml(title)}</a>
+        </h2>
+        ${excerpt ? `<p>${excerpt}</p>` : ""}
+        ${tags ? `<ul aria-label="Tags">${tags}</ul>` : ""}
+      </article>
+    `;
+  };
+
+  const loadPagefind = async () => {
+    if (pagefind) return pagefind;
+
+    pagefind = await import("/pagefind/pagefind.js");
+    await pagefind.init();
+    return pagefind;
+  };
+
+  const openSearch = () => {
+    backdrop.hidden = false;
+    panel.hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => {
+      input.focus();
+      loadPagefind().catch(() => undefined);
+    });
+  };
+
+  const closeSearch = () => {
+    backdrop.hidden = true;
+    panel.hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.focus();
+  };
+
+  const search = async () => {
+    const query = input.value.trim();
+    const currentRun = ++searchRun;
+
+    if (!query) {
+      resultsList.innerHTML = "";
+      setStatus("Type a word or phrase to search the blog.");
+      return;
+    }
+
+    setStatus("Searching...");
+
+    try {
+      const pagefindApi = await loadPagefind();
+      const searchResults = await pagefindApi.search(query, {
+        sort: {
+          date: "desc",
+        },
+      });
+
+      if (currentRun !== searchRun) return;
+
+      const results = await Promise.all(searchResults.results.slice(0, 6).map((result) => result.data()));
+
+      if (currentRun !== searchRun) return;
+
+      if (results.length === 0) {
+        resultsList.innerHTML = `
+          <div class="site-search-empty">
+            No posts matched <span>${escapeHtml(query)}</span>.
+          </div>
+        `;
+        setStatus("No results found.");
+        return;
+      }
+
+      resultsList.innerHTML = results.map(renderResult).join("");
+      setStatus(`${results.length} result${results.length === 1 ? "" : "s"} found.`);
+    } catch {
+      resultsList.innerHTML = `
+        <div class="site-search-empty">
+          Search is available after the site has been built with Pagefind.
+        </div>
+      `;
+      setStatus("Search index could not be loaded.");
+    }
+  };
+
+  trigger.addEventListener("click", () => {
+    if (panel.hidden) {
+      openSearch();
+    } else {
+      closeSearch();
+    }
+  });
+
+  backdrop.addEventListener("click", closeSearch);
+  input.addEventListener("input", () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(search, 150);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !panel.hidden) {
+      closeSearch();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (panel.hidden || !(event.target instanceof Node)) return;
+    if (panel.contains(event.target) || trigger.contains(event.target)) return;
+    closeSearch();
+  });
+</script>
+
+<style is:global>
+  .site-search-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgb(15 23 42 / 0.62);
+    backdrop-filter: blur(2px);
+  }
+
+  .site-search-panel {
+    position: fixed;
+    z-index: 40;
+    top: 82px;
+    left: 50%;
+    width: min(640px, calc(100vw - 32px));
+    max-height: min(680px, calc(100vh - 104px));
+    transform: translateX(-50%);
+    overflow: auto;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 18px 42px rgb(15 23 42 / 0.16);
+  }
+
+  .site-search-field {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    background: white;
+    padding-inline: 0.8rem;
+  }
+
+  .site-search-field:focus-within {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 3px rgb(35 86 216 / 0.12);
+  }
+
+  .site-search-field input {
+    width: 100%;
+    min-height: 44px;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.98rem;
+  }
+
+  .site-search-field input:focus {
+    outline: none;
+  }
+
+  .site-search-result {
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    background: white;
+    padding: 1rem;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+    transition:
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+  }
+
+  .site-search-result:hover {
+    border-color: #b9c5d6;
+    box-shadow: 0 8px 18px rgb(15 23 42 / 0.08);
+    transform: translateY(-1px);
+  }
+
+  .site-search-result-meta {
+    min-height: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  .site-search-result h2 {
+    margin: 0.55rem 0 0;
+    font-size: 1.05rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  .site-search-result h2 a:hover {
+    color: var(--color-blue);
+  }
+
+  .site-search-result p {
+    margin: 0.65rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .site-search-result ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.85rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-search-tag {
+    display: block;
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    background: var(--color-faint);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.42rem 0.5rem;
+  }
+
+  .site-search-result mark {
+    border-radius: 4px;
+    background: #fde68a;
+    color: var(--color-ink);
+    padding: 0 0.15em;
+  }
+
+  .site-search-empty {
+    border: 1px dashed var(--color-line);
+    border-radius: 8px;
+    background: white;
+    color: var(--color-muted);
+    line-height: 1.7;
+    padding: 1rem;
+  }
+
+  .site-search-empty span {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .site-search-panel {
+      top: 72px;
+      left: 50%;
+      width: auto;
+      width: calc(100vw - 24px);
+      max-height: calc(100vh - 84px);
+    }
+  }
+</style>
