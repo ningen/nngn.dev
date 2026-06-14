@@ -21,11 +21,23 @@ const publishedAtTime = formatDateTime(post.data.publishedAt);
 const updatedAt = post.data.updatedAt ? formatDate(post.data.updatedAt) : undefined;
 const updatedAtTime = post.data.updatedAt ? formatDateTime(post.data.updatedAt) : undefined;
 const readingTime = estimateReadingMinutes(post.body);
+const tagsMeta = post.data.tags.join(", ");
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
   <SiteHeader />
   <main>
+    <span style="display: none" data-pagefind-meta={`description:${post.data.description}`}></span>
+    <span style="display: none" data-pagefind-meta={`tags:${tagsMeta}`}></span>
+    {post.data.tags.map((tag) => <span style="display: none" data-pagefind-filter="tag">{tag}</span>)}
+    <time
+      style="display: none"
+      datetime={publishedAtTime}
+      data-pagefind-meta="date[datetime]"
+      data-pagefind-sort="date[datetime]"
+    >
+      {publishedAtTime}
+    </time>
     <BlogArticleHeader
       title={post.data.title}
       description={post.data.description}
@@ -36,8 +48,10 @@ const readingTime = estimateReadingMinutes(post.body);
       readingTime={readingTime}
       tags={post.data.tags}
     />
-    <BlogProse>
-      <Content />
-    </BlogProse>
+    <div data-pagefind-body>
+      <BlogProse>
+        <Content />
+      </BlogProse>
+    </div>
   </main>
 </BaseLayout>
