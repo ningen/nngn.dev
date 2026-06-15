@@ -13,6 +13,7 @@ export const Default = {
     dateTime: "2026-06-14",
     readingTime: "2 min read",
     tags: ["astro", "cloudflare", "note"],
+    markdownUrl: "/blog/hello-astro.md",
   },
 };
 

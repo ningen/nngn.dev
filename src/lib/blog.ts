@@ -16,6 +16,10 @@ export function getPostUrl(post: Pick<BlogPost, "id">) {
   return `/blog/${post.id}/`;
 }
 
+export function getPostMarkdownUrl(post: Pick<BlogPost, "id">) {
+  return `/blog/${post.id}.md`;
+}
+
 export function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en", {
     year: "numeric",

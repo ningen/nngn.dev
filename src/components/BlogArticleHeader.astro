@@ -10,9 +10,10 @@ interface Props {
   updatedAtTime?: string;
   readingTime: string;
   tags: readonly string[];
+  markdownUrl: string;
 }
 
-const { title, description, date, dateTime, updatedAt, updatedAtTime, readingTime, tags } = Astro.props;
+const { title, description, date, dateTime, updatedAt, updatedAtTime, readingTime, tags, markdownUrl } = Astro.props;
 ---
 
 <header class="content-grid py-12 md:py-16">
@@ -32,5 +33,64 @@ const { title, description, date, dateTime, updatedAt, updatedAtTime, readingTim
     <div class="mt-7">
       <TagList tags={tags} linked />
     </div>
+    <div class="mt-6 flex flex-wrap items-center gap-2" data-markdown-actions>
+      <a
+        class="inline-flex min-h-9 items-center rounded-md border border-[var(--color-line)] bg-white px-3 py-2 font-mono text-xs font-medium text-[var(--color-ink)] no-underline hover:border-[var(--color-blue)] hover:text-[var(--color-blue)]"
+        href={markdownUrl}
+      >
+        Markdown
+      </a>
+      <button
+        class="inline-flex min-h-9 items-center rounded-md border border-[var(--color-line)] bg-white px-3 py-2 font-mono text-xs font-medium text-[var(--color-ink)] hover:border-[var(--color-blue)] hover:text-[var(--color-blue)] disabled:cursor-not-allowed disabled:opacity-60"
+        type="button"
+        data-copy-markdown
+        data-markdown-url={markdownUrl}
+      >
+        Copy Markdown
+      </button>
+      <span class="sr-only" role="status" aria-live="polite" data-copy-status></span>
+    </div>
   </div>
 </header>
+
+<script>
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>("[data-copy-markdown]");
+
+  copyButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const markdownUrl = button.dataset.markdownUrl;
+      const actions = button.closest("[data-markdown-actions]");
+      const status = actions?.querySelector<HTMLElement>("[data-copy-status]");
+      const defaultText = button.textContent ?? "Copy Markdown";
+
+      if (!markdownUrl) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        const response = await fetch(markdownUrl, {
+          headers: { Accept: "text/markdown" },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Markdown: ${response.status}`);
+        }
+
+        await navigator.clipboard.writeText(await response.text());
+        button.textContent = "Copied";
+        if (status) status.textContent = "Copied";
+      } catch {
+        button.textContent = "Copy failed";
+        if (status) status.textContent = "Copy failed";
+      } finally {
+        window.setTimeout(() => {
+          button.disabled = false;
+          button.textContent = defaultText;
+          if (status) status.textContent = "";
+        }, 1800);
+      }
+    });
+  });
+</script>

@@ -4,7 +4,7 @@ import BlogArticleHeader from "../../components/BlogArticleHeader.astro";
 import BlogProse from "../../components/BlogProse.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { estimateReadingMinutes, formatDate, formatDateTime, isPublishedPost } from "../../lib/blog";
+import { estimateReadingMinutes, formatDate, formatDateTime, getPostMarkdownUrl, isPublishedPost } from "../../lib/blog";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog")).filter(isPublishedPost);
@@ -22,6 +22,7 @@ const updatedAt = post.data.updatedAt ? formatDate(post.data.updatedAt) : undefi
 const updatedAtTime = post.data.updatedAt ? formatDateTime(post.data.updatedAt) : undefined;
 const readingTime = estimateReadingMinutes(post.body);
 const tagsMeta = post.data.tags.join(", ");
+const markdownUrl = getPostMarkdownUrl(post);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -47,6 +48,7 @@ const tagsMeta = post.data.tags.join(", ");
       updatedAtTime={updatedAtTime}
       readingTime={readingTime}
       tags={post.data.tags}
+      markdownUrl={markdownUrl}
     />
     <div data-pagefind-body>
       <BlogProse>
