@@ -10,7 +10,7 @@ tags:
 draft: false
 ---
 
-このリポジトリは、Astroで作った小さな個人サイトである。トップ、ブログ一覧、記事詳細、タグページ、検索モーダル、Storybook。画面数だけ見れば少ない。
+このリポジトリは、Astroで作った小さな個人サイトだ。トップ、ブログ一覧、記事詳細、タグページ、検索モーダル、Storybook。画面数だけ見れば少ない。
 
 ただ、AIに「設計とUIを見て」と頼むと、だいたい浅くなる。配色がどう、余白がどう、アクセシビリティに配慮しましょう、で終わる。そういう話は別にGoogleで読めるし、このリポジトリを見た意味がない。
 
@@ -57,11 +57,11 @@ export function getPostUrl(post: Pick<BlogPost, "id">) {
 }
 ```
 
-AIに設計レビューをさせるなら、まずここを見るべきである。`draft`の扱い、日付降順、URL生成がページ側に散らばっていないか。UIの話に見えて、実際にはこのへんの小さい規約が崩れると一覧、タグ、検索結果の見え方がずれる。
+AIに設計レビューをさせるなら、まずここから見る。`draft`の扱い、日付降順、URL生成がページ側に散らばっていないか。UIの話に見えて、実際にはこのへんの小さい規約が崩れると一覧、タグ、検索結果の見え方がずれる。
 
 ## 記事詳細はPagefind用のメタが肝
 
-このリポジトリで一番AIが読み飛ばしやすいのは、記事詳細ページの見えない要素である。
+このリポジトリで一番AIが読み飛ばしやすいのは、記事詳細ページの見えない要素だ。
 
 `src/pages/blog/[slug].astro`では、本文の前にPagefind用のメタ情報を置いている。
 
@@ -79,11 +79,11 @@ AIに設計レビューをさせるなら、まずここを見るべきである
 </time>
 ```
 
-これは見た目には出ない。でも検索UIでは効いている。`description`が抜けると検索結果のfallbackが弱くなる。`tags`が抜けると検索結果カードからタグが消える。`date[datetime]`が抜けると、`SiteHeader.astro`側で指定している日付降順sortが効かない。
+これは見た目には出ない。でも検索UIでは機能している。`description`が抜けると検索結果のfallbackが弱くなる。`tags`が抜けると検索結果カードからタグが消える。`date[datetime]`が抜けると、`SiteHeader.astro`側で指定している日付降順sortができない。
 
 なので、AIに検索UIを見せるときは「モーダルが開くか」だけでは足りない。記事詳細がPagefindに渡しているメタ、Pagefindが生成したindex、検索結果の表示までを一本の流れとして見せる必要がある。
 
-ここが、このリポジトリ固有の確認点である。
+ここが、このリポジトリ固有の確認点だ。
 
 ## 検索UIはbuild後にしか本物にならない
 
@@ -97,7 +97,7 @@ AIに設計レビューをさせるなら、まずここを見るべきである
 }
 ```
 
-つまり、検索確認は`bun run build`後の`dist`でやる。AIが`bun run dev`だけで検索を確認すると、`/pagefind/pagefind.js`がなく、catch側の「Search is available after the site has been built with Pagefind.」に落ちる。この挙動自体は正しいが、それを不具合として直されると困る。
+つまり、検索確認は`bun run build`後の`dist`でやる。AIが`bun run dev`だけで検索を確認すると、`/pagefind/pagefind.js`がない。その結果、catch側に入り、「Search is available after the site has been built with Pagefind.」を表示する。この挙動自体は正しいが、それを不具合として直されると困る。
 
 Skillには、ここを明示しておく。
 
@@ -111,7 +111,7 @@ Search UI changed:
 6. assert result title, URL, date, excerpt, and tags
 ```
 
-実装側で見たいのは、次のつながりである。
+実装側で見たいのは、次のつながりだ。
 
 ```text
 frontmatter.description
@@ -158,9 +158,9 @@ if (
 }
 ```
 
-このサイトはビルド時に壊れた検索UIを検出する仕組みを持っていない。だから、少なくともブラウザで開いた時点で必須要素が欠けていたら即座に落とすようにしている。AIがマークアップを触るときは、このガードとDOMのid/classがずれていないかを見る。
+この実装には、ビルド時に壊れた検索UIを検出する仕組みがない。そこで、少なくともブラウザで開いた時点で必須要素が欠けていたら即座に落とす。AIがマークアップを触るときは、このガードとDOMのid/classがずれていないかを見る。
 
-2つ目は、検索結果の競合対策である。
+2つ目は、検索結果の競合対策だ。
 
 ```js
 let searchRun = 0;
@@ -175,7 +175,7 @@ const search = async () => {
 };
 ```
 
-Pagefindの検索と`result.data()`は非同期である。入力が速いと、古い検索結果があとから返ってくる可能性がある。ここでは`searchRun`で古い結果を捨てている。小さい実装だが、AIが「もっとシンプルに」と言って消しがちなところでもある。
+Pagefindの検索と`result.data()`は非同期だ。入力が速いと、古い検索結果があとから返ってくる可能性がある。ここでは`searchRun`で古い結果を捨てている。小さい実装だが、AIが「もっとシンプルに」と言って消しがちなところでもある。
 
 3つ目は、`innerHTML`を使う代わりに`escapeHtml`を通していること。
 
@@ -189,9 +189,9 @@ const escapeHtml = (value) =>
     .replaceAll("'", "&#039;");
 ```
 
-検索結果は自分のMarkdownから来るので外部入力ではない。とはいえ、記事タイトルやdescriptionにHTMLっぽい文字列を書く可能性はある。`renderResult`はテンプレート文字列でHTMLを作るので、このescapeは残すべき実装である。
+検索結果は自分のMarkdownから来るので外部入力ではない。とはいえ、記事タイトルやdescriptionにHTMLっぽい文字列を書く可能性はある。`renderResult`はテンプレート文字列でHTMLを作るので、このescapeは残しておきたい。
 
-4つ目は、モーダルの閉じ方である。検索ボタン、backdrop、Escape、外側クリックをそれぞれ扱っている。見た目だけの確認だと、Escapeで閉じない、閉じたあとtriggerへfocusが戻らない、という退行を見落とす。
+4つ目は、モーダルの閉じ方。検索ボタン、backdrop、Escape、外側クリックをそれぞれ扱っている。見た目だけの確認だと、Escapeで閉じない、閉じたあとtriggerへfocusが戻らない、という退行を見落とす。
 
 このへんは「AIにUIテストをさせる」より、「AIに状態遷移を読ませる」と言ったほうが近い。
 
@@ -199,7 +199,7 @@ const escapeHtml = (value) =>
 
 Storybookを入れている理由は、ページ全体を開くより小さい単位で確認できるからだ。ただし、Default storyだけ見てもあまり意味がない。
 
-このリポジトリで効いているのは、壊れやすい状態をstoryにしているところである。
+このリポジトリで肝になるのは、壊れやすい状態をstoryにしているところだ。
 
 ```ts
 export const LongerTitle = {
@@ -261,7 +261,7 @@ export function estimateReadingMinutes(body: string | undefined) {
 const japaneseCharacters = [...text].filter((char) => /\p{Script=Han}|\p{Script=Hiragana}|\p{Script=Katakana}/u.test(char)).length;
 ```
 
-まだこのサイトの規模では直していないが、「日本語記事を増やすなら先に直す場所」として、AIに検出させたいポイントである。
+まだこのサイトの規模では直していないが、「日本語記事を増やすなら先に直す場所」として、AIに検出させたいポイントだ。
 
 ## タグURLは小さいが壊すと広く響く
 
@@ -285,7 +285,7 @@ return uniqueTags(posts).map((tag) => ({
 }));
 ```
 
-ここは将来、タグにスペースや日本語を入れたときに効く。今のタグは`ai`、`design`、`ui-test`のような安全な文字だけなので、普通に見ていると問題が見えない。AIには、現在のデータだけでなく、URLエンコードが必要な入力を想定して読ませる。
+ここは将来、タグにスペースや日本語を入れたときに影響する。今のタグは`ai`、`design`、`ui-test`のような安全な文字だけなので、普通に見ていると問題が見えない。AIには、現在のデータだけでなく、URLエンコードが必要な入力を想定して読ませる。
 
 この確認はスクショではなくコードレビューでやる。見た目のタグchipが正しくても、リンク先生成がずれていたらタグページに飛べない。
 
@@ -298,7 +298,7 @@ public/images/ai-skill-design-ui/home.png
 public/images/ai-skill-design-ui/search-modal.png
 ```
 
-Markdown本文からは`/images/...`で参照する。Astroのcontent collectionで画像importを使っていないのは、記事を書くだけならpublic配下のほうが扱いが単純だからである。
+Markdown本文からは`/images/...`で参照する。Astroのcontent collectionで画像importを使っていないのは、記事を書くだけならpublic配下のほうが扱いが単純だからだ。
 
 その代わり、本文用に`global.css`へ`figure`と`figcaption`の最低限のスタイルを足した。
 
@@ -316,7 +316,7 @@ Markdown本文からは`/images/...`で参照する。Astroのcontent collection
 }
 ```
 
-これはUI実装としては小さいが、AIに記事を書かせるときには重要である。スクショを本文に入れろと頼むと、画像だけ置いてcaptionが弱くなりがちだ。この記事では、画像は「見た目の証拠」で、captionは「AIに何を確認させたか」を書く場所にしている。
+これはUI実装としては小さいが、AIに記事を書かせるときには重要だ。スクショを本文に入れろと頼むと、画像だけ置いてcaptionが弱くなりがちだ。この記事では、画像は「見た目の証拠」で、captionは「AIに何を確認させたか」を書く場所にしている。
 
 ## Skillに落とすならこう書く
 
