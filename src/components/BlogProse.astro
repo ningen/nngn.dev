@@ -1,5 +1,19 @@
+---
+import type { MarkdownHeading } from "astro";
+import BlogTableOfContents from "./BlogTableOfContents.astro";
+
+interface Props {
+  headings?: readonly MarkdownHeading[];
+}
+
+const { headings = [] } = Astro.props;
+---
+
 <div class="content-grid pb-20">
-  <article class="blog-prose max-w-3xl">
-    <slot />
-  </article>
+  <div class="grid gap-12 xl:grid-cols-[minmax(0,768px)_220px] xl:items-start xl:gap-16">
+    <article class="blog-prose max-w-3xl">
+      <slot />
+    </article>
+    <BlogTableOfContents headings={headings} />
+  </div>
 </div>

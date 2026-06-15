@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const publishedAt = formatDate(post.data.publishedAt);
 const publishedAtTime = formatDateTime(post.data.publishedAt);
 const updatedAt = post.data.updatedAt ? formatDate(post.data.updatedAt) : undefined;
@@ -51,7 +51,7 @@ const markdownUrl = getPostMarkdownUrl(post);
       markdownUrl={markdownUrl}
     />
     <div data-pagefind-body>
-      <BlogProse>
+      <BlogProse headings={headings}>
         <Content />
       </BlogProse>
     </div>

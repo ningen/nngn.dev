@@ -1,0 +1,38 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: readonly MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+---
+
+{
+  tocHeadings.length > 0 ? (
+    <aside class="hidden xl:block" data-pagefind-ignore>
+      <nav
+        class="sticky top-8 border-l border-[var(--color-line)] pl-5"
+        aria-label="Article headings"
+      >
+        <p class="font-mono text-xs font-medium uppercase text-[var(--color-muted)]">On this page</p>
+        <ol class="mt-4 space-y-2">
+          {tocHeadings.map((heading) => (
+            <li>
+              <a
+                class:list={[
+                  "block text-sm leading-6 text-[var(--color-muted)] hover:text-[var(--color-blue)]",
+                  heading.depth === 3 ? "pl-4" : "",
+                ]}
+                href={`#${heading.slug}`}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </aside>
+  ) : null
+}
