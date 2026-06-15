@@ -24,6 +24,8 @@ Astro will serve the site locally. Storybook is separate:
 bun run storybook
 ```
 
+Production builds include Storybook at `/storybook/`.
+
 ## Blog posts
 
 Create a markdown file under `src/content/blog`.
@@ -61,6 +63,8 @@ Use these build settings:
 - Build command: `bun run build`
 - Build output directory: `dist`
 - Root directory: repository root
+
+The build command writes the Astro site to `dist`, builds the Pagefind index, then writes static Storybook assets to `dist/storybook`.
 
 Cloudflare Pages v3 includes Bun. If you want to pin the exact Bun version used locally, set the Pages build environment variable `BUN_VERSION=1.3.13`.
 
