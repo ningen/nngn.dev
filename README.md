@@ -37,7 +37,6 @@ bun run preview   # ビルド結果の確認
 title: "記事タイトル"
 description: "記事の説明"
 date: 2026-11-03
-tags: ["astro"]
 ---
 
 本文はここから。

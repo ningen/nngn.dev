@@ -18,10 +18,10 @@ const nav = [
           <a
             href={item.href}
             class:list={[
-              "rounded-md px-3 py-1.5 text-sm transition-colors",
+              "rounded-sm px-3 py-1.5 text-sm transition-colors",
               item.active
-                ? "bg-accent-tint font-medium text-accent"
-                : "text-foreground-2 hover:bg-surface-2 hover:text-foreground",
+                ? "font-medium text-foreground underline decoration-accent decoration-2 underline-offset-8"
+                : "text-foreground-2 hover:text-foreground",
             ]}
             aria-current={item.active ? "page" : undefined}
           >

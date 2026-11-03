@@ -2,7 +2,6 @@
 title: "デザイントークンで組み直した nngn.dev"
 description: "Astro と Tailwind CSS v4 でサイトを再構築しました。この記事は Markdown レンダリングの確認を兼ねたサンプルです。"
 date: 2026-11-03
-tags: ["astro", "tailwindcss", "design"]
 ---
 
 この記事はブログの表示確認用サンプルです。自由に消してかまいません。

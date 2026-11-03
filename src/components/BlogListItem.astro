@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatDate, formatISO } from "../lib/format";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { title, description, date } = post.data;
+---
+
+<article class="border-b border-border">
+  <a
+    href={`/blog/${post.id}/`}
+    class="group flex items-baseline justify-between gap-6 py-5"
+  >
+    <div>
+      <time class="font-mono text-xs text-foreground-3" datetime={formatISO(date)}>
+        {formatDate(date)}
+      </time>
+      <h2
+        class="mt-1 text-lg font-bold tracking-tight transition-colors group-hover:text-accent"
+      >
+        {title}
+      </h2>
+      <p class="mt-1 text-sm leading-relaxed text-foreground-2">{description}</p>
+    </div>
+    <span
+      class="shrink-0 font-mono text-sm text-foreground-3 transition-all group-hover:translate-x-1 group-hover:text-accent"
+      aria-hidden="true"
+    >
+      →
+    </span>
+  </a>
+</article>

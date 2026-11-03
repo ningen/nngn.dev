@@ -103,7 +103,7 @@
     @apply font-semibold;
   }
   & code {
-    @apply rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
+    @apply rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
   }
   & pre {
     @apply my-6 overflow-x-auto rounded-lg border border-border bg-surface-2 p-4;

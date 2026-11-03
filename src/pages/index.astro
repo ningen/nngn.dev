@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import BlogCard from "../components/BlogCard.astro";
+import BlogListItem from "../components/BlogListItem.astro";
 
 const posts = (await getCollection("blog"))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -25,7 +25,7 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
       <div class="mt-8 flex flex-wrap gap-3">
         <a
           href="/blog/"
-          class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-hover"
+          class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-hover"
         >
           Blog を見る
         </a>
@@ -52,9 +52,9 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
     </div>
     {
       posts.length > 0 ? (
-        <div class="grid gap-4">
+        <div class="border-t border-border">
           {posts.map((post) => (
-            <BlogCard post={post} />
+            <BlogListItem post={post} />
           ))}
         </div>
       ) : (
@@ -78,22 +78,18 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
           デザイントークン
         </a>
         を単一の情報源として設計しており、色や書体の変更は
-        <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+        <code class="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
           >src/styles/global.css</code
         >
         の
-        <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+        <code class="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
           >@theme</code
         >
         で一元管理しています。
       </p>
-      <ul class="mt-6 flex flex-wrap gap-1.5" aria-label="技術スタック">
-        {techStack.map((tech) => (
-          <li class="rounded-full bg-accent-tint px-2.5 py-0.5 text-xs font-medium text-accent">
-            {tech}
-          </li>
-        ))}
-      </ul>
+      <p class="mt-5 font-mono text-xs text-foreground-3">
+        {techStack.join(" / ")}
+      </p>
     </div>
   </section>
 </BaseLayout>
