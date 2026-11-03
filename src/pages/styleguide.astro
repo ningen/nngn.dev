@@ -1,0 +1,334 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+/**
+ * スタイルガイド:デザイントークンとコンポーネントの実物確認ページ。
+ * トークンの定義元は src/styles/global.css の @theme ブロック。
+ */
+
+interface Swatch {
+  name: string;
+  css: string;
+  hex: string;
+  className: string;
+}
+
+const neutrals: Swatch[] = [
+  { name: "背景", css: "--color-background", hex: "#fafaf9", className: "bg-background" },
+  { name: "カード面", css: "--color-surface", hex: "#ffffff", className: "bg-surface" },
+  { name: "弱い面", css: "--color-surface-2", hex: "#f5f5f4", className: "bg-surface-2" },
+  { name: "境界線", css: "--color-border", hex: "#e7e5e4", className: "bg-border" },
+  { name: "強調境界線", css: "--color-border-strong", hex: "#d6d3d1", className: "bg-border-strong" },
+  { name: "本文", css: "--color-foreground", hex: "#1c1917", className: "bg-foreground" },
+  { name: "補足", css: "--color-foreground-2", hex: "#57534e", className: "bg-foreground-2" },
+  { name: "弱いテキスト", css: "--color-foreground-3", hex: "#78716c", className: "bg-foreground-3" },
+];
+
+const accents: Swatch[] = [
+  { name: "アクセント", css: "--color-accent", hex: "#4f46e5", className: "bg-accent" },
+  { name: "ホバー", css: "--color-accent-hover", hex: "#4338ca", className: "bg-accent-hover" },
+  { name: "淡い面", css: "--color-accent-tint", hex: "#eef2ff", className: "bg-accent-tint" },
+  { name: "アクセント上の文字", css: "--color-on-accent", hex: "#ffffff", className: "bg-on-accent" },
+];
+
+const textSizes = [
+  { name: "xs", size: "12px", className: "text-xs" },
+  { name: "sm", size: "14px", className: "text-sm" },
+  { name: "base(本文)", size: "15px / 1.8", className: "text-base" },
+  { name: "lg", size: "18px", className: "text-lg" },
+  { name: "xl", size: "20px", className: "text-xl" },
+  { name: "2xl", size: "24px", className: "text-2xl" },
+  { name: "3xl", size: "30px", className: "text-3xl" },
+];
+
+const spacings = [4, 8, 12, 16, 24, 32, 48, 64];
+
+const radii = [
+  { name: "sm", value: "4px", className: "rounded-sm" },
+  { name: "md", value: "8px", className: "rounded-md" },
+  { name: "lg", value: "12px", className: "rounded-lg" },
+  { name: "full", value: "9999px", className: "rounded-full" },
+];
+
+const sections = [
+  { id: "colors", label: "カラー" },
+  { id: "type", label: "タイポグラフィ" },
+  { id: "spacing", label: "余白" },
+  { id: "radius", label: "角丸・影" },
+  { id: "components", label: "コンポーネント" },
+];
+---
+
+<BaseLayout
+  title="スタイルガイド"
+  description="デザイントークンとコンポーネントの実物確認ページ。トークン定義は src/styles/global.css の @theme にあります。"
+>
+  <div class="mx-auto max-w-3xl px-6 py-12">
+    <h1 class="text-3xl font-bold tracking-tight">スタイルガイド</h1>
+    <p class="mt-2 leading-relaxed text-foreground-2">
+      デザイントークンとコンポーネントの実物確認ページです。トークンの定義元は
+      <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+        >src/styles/global.css</code
+      >
+      の
+      <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+        >@theme</code
+      >
+      ブロックです。
+    </p>
+
+    <nav class="mt-6 flex flex-wrap gap-1.5" aria-label="セクション目次">
+      {
+        sections.map((section) => (
+          <a
+            href={`#${section.id}`}
+            class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground-2 transition-colors hover:border-border-strong hover:text-accent"
+          >
+            {section.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <!-- ===== カラー ===== -->
+    <section id="colors" class="mt-14 scroll-mt-20">
+      <h2 class="text-xl font-bold tracking-tight">カラー</h2>
+      <p class="mt-1 text-sm text-foreground-3">
+        Tailwind v4 は
+        <code class="font-mono text-[0.85em]">--color-*</code>
+        から
+        <code class="font-mono text-[0.85em]">bg-* / text-* / border-*</code>
+        を自動生成します。
+      </p>
+
+      <h3 class="mt-8 font-semibold">ニュートラル(stone 系)</h3>
+      <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {
+          neutrals.map((swatch) => (
+            <div class="rounded-lg border border-border bg-surface p-3">
+              <div class:list={["h-14 rounded-md border border-border", swatch.className]} />
+              <p class="mt-2 text-xs font-medium">{swatch.name}</p>
+              <p class="font-mono text-[10px] leading-relaxed text-foreground-3">
+                {swatch.css}
+                <br />
+                {swatch.hex}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+
+      <h3 class="mt-8 font-semibold">アクセント(インディゴ)</h3>
+      <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {
+          accents.map((swatch) => (
+            <div class="rounded-lg border border-border bg-surface p-3">
+              <div class:list={["h-14 rounded-md border border-border", swatch.className]} />
+              <p class="mt-2 text-xs font-medium">{swatch.name}</p>
+              <p class="font-mono text-[10px] leading-relaxed text-foreground-3">
+                {swatch.css}
+                <br />
+                {swatch.hex}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-3 text-sm text-foreground-3">
+        アクセント上の白文字コントラスト比は 6.3:1(WCAG AA 合格)。
+        <span class="rounded-sm bg-accent px-1.5 py-0.5 text-on-accent">白文字の見え方</span>
+      </p>
+    </section>
+
+    <!-- ===== タイポグラフィ ===== -->
+    <section id="type" class="mt-14 scroll-mt-20">
+      <h2 class="text-xl font-bold tracking-tight">タイポグラフィ</h2>
+      <p class="mt-1 text-sm text-foreground-3">
+        日本語は Zen Kaku Gothic New、欧文・数字は Inter、コードは JetBrains Mono。
+      </p>
+
+      <div class="mt-6 divide-y divide-border rounded-lg border border-border bg-surface">
+        {
+          textSizes.map((item) => (
+            <div class="flex items-baseline gap-4 px-5 py-3.5">
+              <p class="w-32 shrink-0 font-mono text-xs text-foreground-3">
+                text-{item.name}
+                <br />
+                <span class="text-[10px]">{item.size}</span>
+              </p>
+              <p class:list={[item.className, "font-bold tracking-tight"]}>
+                トークンで整えた UI 見本
+              </p>
+            </div>
+          ))
+        }
+        <div class="flex items-baseline gap-4 px-5 py-3.5">
+          <p class="w-32 shrink-0 font-mono text-xs text-foreground-3">font-mono</p>
+          <p class="font-mono text-base">const tokens = {`{ accent: "#4f46e5" }`}</p>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-lg border border-border bg-surface p-5">
+        <p class="text-sm font-medium">ウェイト: 400 / 500 / 700 / 900</p>
+        <p class="mt-2 text-2xl font-normal tracking-tight">トークン</p>
+        <p class="text-2xl font-medium tracking-tight">トークン</p>
+        <p class="text-2xl font-bold tracking-tight">トークン</p>
+        <p class="text-2xl font-black tracking-tight">トークン</p>
+      </div>
+
+      <div class="mt-4 rounded-lg border border-border bg-surface p-5">
+        <p class="text-sm font-medium">本文見本(15px・行間 1.8)</p>
+        <p class="mt-2 text-base leading-[1.8] text-foreground">
+          このサイトはポートフォリオと、日々の開発で得た知見を書き留めるブログで構成されています。
+          UI
+          の色とデザイントークンにこだわって設計しており、本文の行間は日本語の読みやすさを優先して
+          1.8 にしています。Numbers 1234 &amp; URLs も Inter で整います。
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== 余白 ===== -->
+    <section id="spacing" class="mt-14 scroll-mt-20">
+      <h2 class="text-xl font-bold tracking-tight">余白</h2>
+      <p class="mt-1 text-sm text-foreground-3">
+        Tailwind 標準の 4px 基準スケール。セクション間は 3rem〜4rem を使います。
+      </p>
+      <div class="mt-6 space-y-3 rounded-lg border border-border bg-surface p-5">
+        {
+          spacings.map((size) => (
+            <div class="flex items-center gap-3">
+              <p class="w-24 shrink-0 font-mono text-xs text-foreground-3">{size}px</p>
+              <div
+                class="h-4 border-l-2 border-accent bg-accent-tint"
+                style={`width:${size * 4}px`}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ===== 角丸・影 ===== -->
+    <section id="radius" class="mt-14 scroll-mt-20">
+      <h2 class="text-xl font-bold tracking-tight">角丸・影</h2>
+      <div class="mt-6 grid gap-3 sm:grid-cols-2">
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">角丸(--radius-*)</p>
+          <div class="mt-4 flex flex-wrap gap-4">
+            {
+              radii.map((item) => (
+                <div class="text-center">
+                  <div
+                    class:list={[
+                      "h-14 w-20 border-2 border-accent bg-accent-tint",
+                      item.className,
+                    ]}
+                  />
+                  <p class="mt-1.5 font-mono text-[10px] text-foreground-3">
+                    {item.name} {item.value}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">影(--shadow-*)</p>
+          <div class="mt-4 grid gap-4">
+            <div class="rounded-lg border border-border bg-surface p-4 shadow-sm">
+              <p class="text-sm font-medium">shadow-sm</p>
+              <p class="text-xs text-foreground-3">0 1px 2px(ほんのり)</p>
+            </div>
+            <div class="rounded-lg border border-border bg-surface p-4 shadow-md">
+              <p class="text-sm font-medium">shadow-md</p>
+              <p class="text-xs text-foreground-3">0 4px 16px(ふんわり)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== コンポーネント ===== -->
+    <section id="components" class="mt-14 scroll-mt-20">
+      <h2 class="text-xl font-bold tracking-tight">コンポーネント</h2>
+
+      <div class="mt-6 space-y-4">
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">ボタン</p>
+          <div class="mt-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-hover"
+            >
+              プライマリ
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-accent-hover px-5 py-2.5 text-sm font-medium text-on-accent shadow-sm"
+            >
+              プライマリ(ホバー時)
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground-2 transition-colors hover:border-border-strong hover:bg-surface-2 hover:text-foreground"
+            >
+              セカンダリ
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">リンク</p>
+          <p class="mt-3">
+            <a
+              href="#components"
+              class="font-medium text-accent underline decoration-accent/30 underline-offset-4 hover:text-accent-hover hover:decoration-accent"
+            >
+              本文中のリンク → 記事タイトルなど
+            </a>
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">タグチップ / インラインコード</p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="rounded-full bg-accent-tint px-2.5 py-0.5 text-xs font-medium text-accent"
+              >astro</span
+            >
+            <span class="rounded-full bg-accent-tint px-2.5 py-0.5 text-xs font-medium text-accent"
+              >tailwindcss</span
+            >
+            <code
+              class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+              >npm create astro</code
+            >
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">カード(BlogCard)</p>
+          <article class="mt-3 rounded-lg border border-border bg-surface p-5 shadow-sm">
+            <time class="font-mono text-xs text-foreground-3">2026年11月3日</time>
+            <h3 class="mt-1.5 text-lg font-bold tracking-tight">記事タイトル</h3>
+            <p class="mt-1.5 text-sm leading-relaxed text-foreground-2">
+              記事の説明文。ホバーすると枠線が濃くなり、タイトルがアクセント色になります。
+            </p>
+          </article>
+        </div>
+
+        <div class="rounded-lg border border-border bg-surface p-5">
+          <p class="text-sm font-medium">その他の状態</p>
+          <p class="mt-3 text-sm text-foreground-2">
+            テキストを選択すると
+            <span class="rounded-sm bg-accent px-1.5 py-0.5 text-on-accent">アクセント色の選択</span
+            >になります。キーボード操作時はアクセント色のフォーカスリングが出ます(このページで
+            <kbd class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-xs"
+              >Tab</kbd
+            >
+            で確認できます)。
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogCard from "../../components/BlogCard.astro";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<BaseLayout title="Blog" description="技術メモと開発の記録。">
+  <div class="mx-auto max-w-3xl px-6 py-12">
+    <h1 class="text-3xl font-bold tracking-tight">Blog</h1>
+    <p class="mt-2 text-foreground-2">技術メモと開発の記録。</p>
+    <div class="mt-8 grid gap-4">
+      {
+        posts.length > 0 ? (
+          posts.map((post) => <BlogCard post={post} />)
+        ) : (
+          <p class="rounded-lg border border-dashed border-border bg-surface px-4 py-10 text-center text-sm text-foreground-3">
+            まだ投稿はありません。<code
+              class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+              >src/content/blog/</code
+            >
+            に Markdown を置くと一覧に表示されます。
+          </p>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

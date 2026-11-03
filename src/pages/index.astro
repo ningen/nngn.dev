@@ -1,0 +1,99 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BlogCard from "../components/BlogCard.astro";
+
+const posts = (await getCollection("blog"))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
+---
+
+<BaseLayout title="nngn.dev">
+  <!-- ヒーロー -->
+  <section class="border-b border-border">
+    <div class="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+      <p class="font-mono text-sm text-accent">PORTFOLIO &amp; TECH BLOG</p>
+      <h1 class="mt-3 text-3xl font-bold leading-snug tracking-tight sm:text-4xl">
+        ポートフォリオと技術メモ
+      </h1>
+      <p class="mt-4 max-w-xl leading-relaxed text-foreground-2">
+        開発の記録と、色・タイポグラフィのデザイントークンにこだわった UI。
+        Astro と Tailwind CSS で構築しています。
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href="/blog/"
+          class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-hover"
+        >
+          Blog を見る
+        </a>
+        <a
+          href="/styleguide/"
+          class="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground-2 transition-colors hover:border-border-strong hover:bg-surface-2 hover:text-foreground"
+        >
+          スタイルガイド
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最近の投稿 -->
+  <section class="mx-auto max-w-3xl px-6 py-12">
+    <div class="mb-6 flex items-end justify-between">
+      <h2 class="text-xl font-bold tracking-tight">最近の投稿</h2>
+      <a
+        href="/blog/"
+        class="text-sm font-medium text-accent transition-colors hover:text-accent-hover"
+      >
+        すべて見る →
+      </a>
+    </div>
+    {
+      posts.length > 0 ? (
+        <div class="grid gap-4">
+          {posts.map((post) => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+      ) : (
+        <p class="rounded-lg border border-dashed border-border bg-surface px-4 py-10 text-center text-sm text-foreground-3">
+          まだ投稿はありません
+        </p>
+      )
+    }
+  </section>
+
+  <!-- このサイトについて -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-3xl px-6 py-12">
+      <h2 class="text-xl font-bold tracking-tight">このサイトについて</h2>
+      <p class="mt-4 leading-relaxed text-foreground-2">
+        ポートフォリオと技術メモを置く場所です。UI は
+        <a
+          href="/styleguide/"
+          class="font-medium text-accent underline decoration-accent/30 underline-offset-4 hover:text-accent-hover"
+        >
+          デザイントークン
+        </a>
+        を単一の情報源として設計しており、色や書体の変更は
+        <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+          >src/styles/global.css</code
+        >
+        の
+        <code class="rounded-sm border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
+          >@theme</code
+        >
+        で一元管理しています。
+      </p>
+      <ul class="mt-6 flex flex-wrap gap-1.5" aria-label="技術スタック">
+        {techStack.map((tech) => (
+          <li class="rounded-full bg-accent-tint px-2.5 py-0.5 text-xs font-medium text-accent">
+            {tech}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
