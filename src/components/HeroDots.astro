@@ -1,17 +1,23 @@
 ---
 /**
  * HeroDots: トップページのヒーローに表示するドットの3Dジオラマ。
- * 「家の前で毛糸玉と遊ぶねこ」をボクセル状の点群で描き、ゆっくり回転させる。
+ * Minecraft 風の「ブロックで組んだ家と、正面を向いて座るねこ」を
+ * ボクセル点群で描き、台座ごとゆっくり回転させる。
+ *
+ * 見え方のポイント:
+ *   - すべて中まで詰まった塊(壁厚2の家、充実の屋根)でシルエットを作る
+ *   - ドット径を 0.9 にして隣とほぼ密着させ、面として読ませる
+ *   - depthWrite を有効にして手前のドットで奥を隠す(透過しない)
  *
  * 色はすべてデザイントークンから取得するので、global.css の @theme を
  * 変更するとこのグラフィックにも反映される。
  *
  * パレット対応:
  *   地面      --color-border-strong(薄いグレー)
- *   壁        --color-foreground-3(中間グレー)
+ *   壁・煙突  --color-foreground-3(中間グレー)
  *   屋根      --color-foreground-2(濃いグレー)
  *   ねこ      --color-foreground(インク)
- *   毛糸玉・窓・屋根の棟・ハート --color-accent(インディゴ)
+ *   窓・目・毛糸玉・屋根の棟・ハート --color-accent(インディゴ)
  */
 interface Props {
   class?: string;
@@ -33,6 +39,7 @@ const { class: className } = Astro.props;
 
 <script>
   import * as THREE from "three";
+  import { buildDiorama, type DioramaColor } from "../lib/diorama";
 
   const container = document.querySelector<HTMLElement>("[data-hero-dots]");
   if (!container) throw new Error("HeroDots: container not found");
@@ -42,8 +49,7 @@ const { class: className } = Astro.props;
   const token = (name: string, fallback: string) =>
     new THREE.Color(styles.getPropertyValue(name).trim() || fallback);
 
-  type ColorKey = "floor" | "wall" | "roof" | "cat" | "accent";
-  const palette: Record<ColorKey, THREE.Color> = {
+  const palette: Record<DioramaColor, THREE.Color> = {
     floor: token("--color-border-strong", "#d6d3d1"),
     wall: token("--color-foreground-3", "#78716c"),
     roof: token("--color-foreground-2", "#57534e"),
@@ -51,92 +57,9 @@ const { class: className } = Astro.props;
     accent: token("--color-accent", "#4f46e5"),
   };
 
-  // ===== ボクセル定義(1 グリッド = 1 ドット) =====
-  const voxels: Array<[number, number, number, ColorKey]> = [];
-  const add = (x: number, y: number, z: number, c: ColorKey) =>
-    voxels.push([x, y, z, c]);
-
-  // 前庭の地面(x 0..20, z 0..12)
-  for (let x = 0; x <= 20; x++) {
-    for (let z = 0; z <= 12; z++) add(x, 0, z, "floor");
-  }
-
-  // 家の壁(高さ y=1..7、家の範囲 x=8..19, z=3..12)
-  const isDoor = (x: number, y: number) => y <= 3 && x >= 13 && x <= 14;
-  const isWindow = (x: number, y: number) =>
-    (x === 11 || x === 16) && (y === 4 || y === 5);
-  for (let y = 1; y <= 7; y++) {
-    for (let x = 8; x <= 19; x++) {
-      if (!isDoor(x, y) && !isWindow(x, y)) add(x, y, 3, "wall"); // 正面
-      add(x, y, 12, "wall"); // 背面
-    }
-    for (let z = 3; z <= 12; z++) {
-      add(8, y, z, "wall"); // 左の壁
-      add(19, y, z, "wall"); // 右の壁
-    }
-  }
-  // 窓(アクセント色に光る)
-  add(11, 4, 3, "accent");
-  add(11, 5, 3, "accent");
-  add(16, 4, 3, "accent");
-  add(16, 5, 3, "accent");
-
-  // 切妻屋根(棟をアクセント色で縁取り)
-  for (let x = 7; x <= 20; x++) {
-    for (let z = 3; z <= 12; z++) {
-      const y = Math.round(12 - Math.abs(z - 7.5));
-      const ridge = y === 12 && (z === 7 || z === 8);
-      add(x, y, z, ridge ? "accent" : "roof");
-    }
-  }
-  // 煙突
-  add(17, 11, 5, "wall");
-  add(17, 12, 5, "wall");
-
-  // ねこ(座って前足で毛糸玉を転がしている)
-  for (let y = 1; y <= 3; y++) {
-    for (let x = 3; x <= 4; x++) {
-      for (let z = 0; z <= 2; z++) add(x, y, z, "cat"); // 胴体
-    }
-  }
-  for (let y = 4; y <= 5; y++) {
-    for (let x = 5; x <= 6; x++) {
-      for (let z = 0; z <= 2; z++) {
-        // 目(左右の面の 1 ドットを空ける)
-        const eye = x === 6 && y === 5 && (z === 0 || z === 2);
-        if (!eye) add(x, y, z, "cat"); // 頭
-      }
-    }
-  }
-  add(5, 6, 0, "cat"); // 耳(左)
-  add(5, 6, 2, "cat");
-  add(6, 6, 0, "cat"); // 耳(右)
-  add(6, 6, 2, "cat");
-  add(2, 2, 1, "cat"); // しっぽ(くるん)
-  add(1, 3, 1, "cat");
-  add(2, 4, 1, "cat");
-
-  add(7, 1, 1, "cat"); // 伸ばした前足
-
-  // 毛糸玉(2×2×2)+ ほどけた糸
-  for (let x = 8; x <= 9; x++) {
-    for (let y = 1; y <= 2; y++) {
-      for (let z = 1; z <= 2; z++) add(x, y, z, "accent");
-    }
-  }
-  add(7, 1, 0, "accent");
-  add(6, 1, 0, "accent");
-
-  // ねこの頭上に浮かぶハート
-  const heart: Array<[number, number]> = [
-    [3, 8], [5, 8],
-    [2, 9], [3, 9], [4, 9], [5, 9], [6, 9],
-    [3, 10], [4, 10], [5, 10],
-    [4, 11],
-  ];
-  for (const [hx, hy] of heart) add(hx, hy, 1, "accent");
-
   // ===== 点群の構築 =====
+  const voxels = buildDiorama();
+
   const positions = new Float32Array(voxels.length * 3);
   const colors = new Float32Array(voxels.length * 3);
   voxels.forEach(([x, y, z, key], i) => {
@@ -153,12 +76,11 @@ const { class: className } = Astro.props;
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
+  // ドットは隣とほぼ密着させ、面として読ませる。奥は手前で隠す。
   const material = new THREE.PointsMaterial({
-    size: 0.38,
+    size: 0.9,
     vertexColors: true,
-    transparent: true,
-    opacity: 0.9,
-    depthWrite: false,
+    sizeAttenuation: true,
   });
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -173,15 +95,15 @@ const { class: className } = Astro.props;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-  camera.position.set(0, 2, 20);
-  camera.lookAt(0, -0.5, 0);
+  camera.position.set(0, 2.5, 22);
+  camera.lookAt(0, 1.5, 0);
 
   const group = new THREE.Group();
   group.add(new THREE.Points(geometry, material));
   // ジオラマの中心を原点に合わせる
-  group.position.set(-10, -5.5, -6);
-  group.rotation.x = 0.12;
-  group.scale.setScalar(0.85);
+  group.position.set(-12.5, -6.5, -7.5);
+  group.rotation.x = 0.08;
+  group.scale.setScalar(0.95);
   scene.add(group);
 
   const reduceMotion = window.matchMedia(
@@ -217,9 +139,9 @@ const { class: className } = Astro.props;
   const animate = () => {
     frame = requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.1);
-    group.rotation.y += dt * 0.3;
-    group.rotation.x += (0.12 + mouseY * 0.15 - group.rotation.x) * 0.04;
-    group.rotation.z += (-mouseX * 0.15 - group.rotation.z) * 0.04;
+    group.rotation.y += dt * 0.25;
+    group.rotation.x += (0.08 + mouseY * 0.12 - group.rotation.x) * 0.04;
+    group.rotation.z += (-mouseX * 0.12 - group.rotation.z) * 0.04;
     renderer.render(scene, camera);
   };
 
