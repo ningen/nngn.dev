@@ -8,7 +8,7 @@
 
 - リポジトリ: `/home/ningen/ghq/github.com/ningen/nngn.dev`(WSL 内)
 - サイト URL(予定): https://nngn.dev
-- 技術スタック: **Astro 7 + Tailwind CSS v4(`@theme` でトークン管理)+ Three.js(ヒーロー演出)+ Markdown ブログ / bun / Cloudflare Pages**
+- 技術スタック: **Astro 7 + Tailwind CSS v4(`@theme` でトークン管理)+ Markdown ブログ / bun / Cloudflare Pages**
 
 ## 2. 決定済みの方針(ユーザーの意向。覆すときは要確認)
 
@@ -21,11 +21,11 @@
 | タグ機能 | **削除済み** | 「記事を積み重ねることを優先」との意向。必要になったら復活 |
 | Storybook | **不使用** | デザイン確認はサイト内 `/styleguide` ページで行う |
 | ブログ一覧 UI | **エディトリアル・リスト型** | カード・ピル・影などの「AI っぽい」装飾は NG(ユーザー明言) |
-| ヒーロー演出 | **ドットの3Dジオラマ(マイクラ風)** | 「ねこが家で遊んでいる」テーマ。詳細は §5 |
+| ヒーロー演出 | **なし(Three.js は撤去)** | ドットジオラマは水準に届かず、2026-11-03 に削除。戻さない |
 
 ## 3. デザイントークン
 
-**単一の情報源: `src/styles/global.css` の `@theme` ブロック。** UI の色・書体・角丸・影はすべてここで管理し、Tailwind ユーティリティ(`bg-accent` など)として使う。ヒーローの Three.js も同じトークンを `getComputedStyle` 経由で参照する。
+**単一の情報源: `src/styles/global.css` の `@theme` ブロック。** UI の色・書体・角丸・影はすべてここで管理し、Tailwind ユーティリティ(`bg-accent` など)として使う。
 
 ```css
 /* ニュートラル(stone 系) */
@@ -58,7 +58,7 @@
 ## 4. サイト構成
 
 ```
-/                    ヒーロー(3D ジオラマ)+ 最近の投稿 3 件 + About
+/                    導入文 + 最近の投稿 3 件 + About
 /blog/               投稿一覧(エディトリアル・リスト)
 /blog/[slug]/        記事ページ(prose)
 /styleguide/         デザイントークン・コンポーネントの実物見本(デザイン確認用ページ)
@@ -77,8 +77,6 @@ src/components/
   SiteFooter.astro
   BlogListItem.astro    投稿 1 件分(罫線区切りリスト。ホバーでタイトルがインディゴ + 矢印が動く)
   BlogProse.astro       記事本文ラッパー(.prose)
-  HeroDots.astro        ヒーローの 3D ジオラマ(three.js)
-src/lib/diorama.ts      ジオラマのボクセル定義(テスト・検証用に分離)
 src/lib/format.ts       日付整形(ja-JP)
 ```
 
@@ -96,36 +94,11 @@ date: 2026-11-03
 本文。
 ```
 
-## 5. ヒーローの 3D ジオラマ(重要: 過去の失敗と対策)
+## 5. ヒーロー演出は撤去済み
 
-`HeroDots.astro` + `src/lib/diorama.ts`。「家の前で毛糸玉と遊ぶねこ」を約 2,000 個のボクセル点群で描き、台座ごとゆっくり回転(1 周約 25 秒)。マウス視差あり。
+Three.js のドットジオラマ(家とねこ)は、点でも立方体でも求めていた水準に届かなかったため削除した。`three` と `HeroDots.astro` / `src/lib/diorama.ts` はリポジトリに無い。戻さない。
 
-**過去に「家もねこも何かわからない」とダメ出しされた原因と対策(再発防止):**
-
-1. ~~`depthWrite: false`~~ → **有効**(無効だと全ドットが透けて混ざり、ノイズに見える)
-2. ~~壁厚 1 の薄い板 + 小さな粒(size 0.38)~~ → **中まで詰まった塊**(壁厚 2、屋根は充実の楔形)+ **ドット径 0.9**(隣とほぼ密着して面として読める)
-3. 造形は必ず `box()` で塊を作る。単発の線状ドットは回転すると読めなくなる
-
-制約・仕様:
-
-- 色はデザイントークンから取得(地面=border-strong / 壁=foreground-3 / 屋根=foreground-2 / ねこ=foreground / 窓・目・毛糸玉・ハート=accent)
-- `prefers-reduced-motion: reduce` では静止、タブ非表示で描画停止、モバイル(`md` 未満)は非表示
-- three.js は index ページのみにロード(+約 127KB gzip)。軽量化したければ遅延読み込みを検討
-- ボクセルは Map 管理(同一セルは上書き、重複ドットなし)
-
-### 見た目検証の方法(重要)
-
-**この環境の AI は画像を読めない。** 代わりに `src/lib/diorama.ts` を import して ASCII 投影を出力する:
-
-```sh
-bun -e '
-import { buildDiorama } from "./src/lib/diorama.ts";
-const voxels = buildDiorama();
-// 正面図(x, y)と側面図(z, y)を文字で印字してシルエット確認
-'
-```
-
-最終的な見た目の判断はユーザー(ブラウザで http://localhost:4321 を確認)が行う。ユーザーはデザインにこだわりが強く、フィードバックが細かい。
+トップは導入文とボタンだけ。下の投稿一覧と同じ `max-w-3xl` のカラムに揃えている。
 
 ## 6. 作業履歴(git log)
 
@@ -149,7 +122,7 @@ b472cf7 fix(home): make dot diorama readable as a house and cat
    - 旧設定はリポジトリ削除で消えた(旧: `wrangler pages project create nngn-dev --production-branch main`、`wrangler pages deploy dist` 方式)
    - 再構築が必要。wrangler は未導入なので `bun add -d wrangler` から
 3. **記事の充実**(ユーザーの最優先事項。まず記事を積み重ねたい)
-4. 将来の候補(現状は未着手): Shiki によるシンタックスハイライト / 検索 / RSS / タグ復活 / ビジュアルリグレッション / three.js の遅延読み込み
+4. 将来の候補(現状は未着手): Shiki によるシンタックスハイライト / 検索 / RSS / タグ復活 / ビジュアルリグレッション
 
 ## 8. 開発環境のメモ
 

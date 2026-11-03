@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BlogListItem from "../components/BlogListItem.astro";
-import HeroDots from "../components/HeroDots.astro";
 
 const posts = (await getCollection("blog"))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -13,32 +12,29 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
 
 <BaseLayout title="nngn.dev">
   <!-- ヒーロー -->
-  <section class="relative overflow-hidden border-b border-border">
-    <HeroDots class="absolute inset-y-0 right-0 hidden w-[48%] md:block" />
-    <div class="relative mx-auto max-w-5xl px-6">
-      <div class="max-w-md py-16 sm:py-20 md:max-w-[55%] lg:max-w-lg">
-        <p class="font-mono text-sm text-accent">PORTFOLIO &amp; TECH BLOG</p>
-        <h1 class="mt-3 text-3xl font-bold leading-snug tracking-tight sm:text-4xl">
-          ポートフォリオと技術メモ
-        </h1>
-        <p class="mt-4 max-w-xl leading-relaxed text-foreground-2">
-          開発の記録と、色・タイポグラフィのデザイントークンにこだわった UI。
-          Astro と Tailwind CSS で構築しています。
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a
-            href="/blog/"
-            class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-hover"
-          >
-            Blog を見る
-          </a>
-          <a
-            href="/styleguide/"
-            class="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground-2 transition-colors hover:border-border-strong hover:bg-surface-2 hover:text-foreground"
-          >
-            スタイルガイド
-          </a>
-        </div>
+  <section class="border-b border-border">
+    <div class="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+      <p class="font-mono text-sm text-accent">PORTFOLIO &amp; TECH BLOG</p>
+      <h1 class="mt-3 text-3xl font-bold leading-snug tracking-tight sm:text-4xl">
+        ポートフォリオと技術メモ
+      </h1>
+      <p class="mt-4 leading-relaxed text-foreground-2">
+        開発の記録と、色・タイポグラフィのデザイントークンにこだわった UI。
+        Astro と Tailwind CSS で構築しています。
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href="/blog/"
+          class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-hover"
+        >
+          Blog を見る
+        </a>
+        <a
+          href="/styleguide/"
+          class="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground-2 transition-colors hover:border-border-strong hover:bg-surface-2 hover:text-foreground"
+        >
+          スタイルガイド
+        </a>
       </div>
     </div>
   </section>

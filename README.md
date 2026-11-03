@@ -6,7 +6,6 @@
 
 - [Astro](https://astro.build)(静的サイト生成)
 - [Tailwind CSS v4](https://tailwindcss.com)(`@theme` でトークン管理)
-- [Three.js](https://threejs.org)(トップページのヒーロー演出)
 - Markdown ベースのブログ(Content Collections)
 - Bun / Cloudflare Pages
 
