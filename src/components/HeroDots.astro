@@ -1,0 +1,158 @@
+---
+/**
+ * HeroDots: トップページのヒーローに表示するドットの3Dオブジェクト。
+ * トーラス結び目 (p=2, q=3) の点群をゆっくり回転させ、マウスに視差追従させる。
+ *
+ * 色はデザイントークン (--color-accent / --color-foreground-3) から取得するので、
+ * global.css の @theme を変更するとこのグラフィックにも反映される。
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={["pointer-events-none select-none", className]} data-hero-dots aria-hidden="true">
+</div>
+
+<style>
+  [data-hero-dots] {
+    /* キャンバスの端を背景に溶かす */
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 100%);
+  }
+</style>
+
+<script>
+  import * as THREE from "three";
+
+  const container = document.querySelector<HTMLElement>("[data-hero-dots]");
+  if (!container) throw new Error("HeroDots: container not found");
+
+  // デザイントークンから色を取得
+  const styles = getComputedStyle(document.documentElement);
+  const accent = new THREE.Color(
+    styles.getPropertyValue("--color-accent").trim() || "#4f46e5",
+  );
+  const ink = new THREE.Color(
+    styles.getPropertyValue("--color-foreground-3").trim() || "#78716c",
+  );
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  container.appendChild(renderer.domElement);
+
+  const canvas = renderer.domElement;
+  canvas.style.display = "block";
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.set(0, 0, 7.5);
+
+  const group = new THREE.Group();
+  group.rotation.x = 0.4;
+  group.scale.setScalar(0.8);
+  scene.add(group);
+
+  // トーラス結び目 (p=2, q=3) の点群を生成
+  const knot = (count: number, accentRatio: number, size: number) => {
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const p = 2;
+    const q = 3;
+
+    for (let i = 0; i < count; i++) {
+      const t = (i / count) * Math.PI * 2;
+      // わずかな乱数で「かすれたドット」の質感に
+      const jitter = 0.13;
+      const cx = (2 + Math.cos(q * t)) * Math.cos(p * t);
+      const cy = (2 + Math.cos(q * t)) * Math.sin(p * t);
+      const cz = Math.sin(q * t);
+      positions[i * 3] = cx + (Math.random() - 0.5) * jitter * 2;
+      positions[i * 3 + 1] = cy + (Math.random() - 0.5) * jitter * 2;
+      positions[i * 3 + 2] = cz + (Math.random() - 0.5) * jitter * 2;
+
+      const c = Math.random() < accentRatio ? accent : ink;
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+      size,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.75,
+      depthWrite: false,
+    });
+
+    return new THREE.Points(geometry, material);
+  };
+
+  // 本体(細かいドット)+ アクセントの粗いドットで奥行きを出す
+  group.add(knot(4200, 0.3, 0.05));
+  group.add(knot(320, 1, 0.095));
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  const resize = () => {
+    const width = container.clientWidth || 1;
+    const height = container.clientHeight || 1;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  };
+  const observer = new ResizeObserver(resize);
+  observer.observe(container);
+  resize();
+
+  // マウス視差
+  let mouseX = 0;
+  let mouseY = 0;
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
+    },
+    { passive: true },
+  );
+
+  const clock = new THREE.Clock();
+  let frame = 0;
+
+  const animate = () => {
+    frame = requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.1);
+    group.rotation.y += dt * 0.25;
+    group.rotation.x += (0.4 + mouseY * 0.25 - group.rotation.x) * 0.04;
+    group.rotation.z += (-mouseX * 0.2 - group.rotation.z) * 0.04;
+    renderer.render(scene, camera);
+  };
+
+  if (reduceMotion) {
+    renderer.render(scene, camera);
+  } else {
+    animate();
+  }
+
+  // タブ非表示中は描画を止める
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (!reduceMotion) cancelAnimationFrame(frame);
+    } else if (!reduceMotion) {
+      clock.getDelta();
+      animate();
+    }
+  });
+</script>
