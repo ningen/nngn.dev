@@ -106,7 +106,9 @@
     @apply rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
   }
   & pre {
-    @apply my-6 overflow-x-auto rounded-lg border border-border bg-surface-2 p-4;
+    @apply my-6 overflow-x-auto rounded-lg border border-border p-4;
+    /* Shiki が pre にインラインで背景色を指定するため、デザイントークンを優先する */
+    background-color: var(--color-surface-2) !important;
   }
   & pre code {
     @apply border-0 bg-transparent p-0 text-sm;
