@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#4f46e5"/>
-  <text x="32" y="43" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="36" font-weight="500" fill="#ffffff">n</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- nngn.dev マーク: 「nngn = ningen の子音列」を一筆で。右足が g に巻く n。 -->
+  <path d="M16 48 V29.5 C16 22.3 21.9 16.5 29.1 16.5 H34.9 C42.1 16.5 48 22.3 48 29.5 V38" stroke="#4f46e5" stroke-width="7" stroke-linecap="round"/>
+  <path d="M48 38 C48 44.1 43.1 49 37 49 H32" stroke="#4f46e5" stroke-width="7" stroke-linecap="round"/>
 </svg>
