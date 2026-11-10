@@ -3,7 +3,6 @@ const path = Astro.url.pathname;
 const nav = [
   { href: "/", label: "トップ", active: path === "/" },
   { href: "/blog/", label: "Blog", active: path.startsWith("/blog") },
-  { href: "/styleguide/", label: "スタイルガイド", active: path.startsWith("/styleguide") },
 ];
 ---
 

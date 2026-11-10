@@ -19,8 +19,7 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
         ポートフォリオと技術メモ
       </h1>
       <p class="mt-4 leading-relaxed text-foreground-2">
-        開発の記録と、色・タイポグラフィのデザイントークンにこだわった UI。
-        Astro と Tailwind CSS で構築しています。
+        開発の記録を残しています。Astro と Tailwind CSS で構築しています。
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a
@@ -28,12 +27,6 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
           class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-hover"
         >
           Blog を見る
-        </a>
-        <a
-          href="/styleguide/"
-          class="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground-2 transition-colors hover:border-border-strong hover:bg-surface-2 hover:text-foreground"
-        >
-          スタイルガイド
         </a>
       </div>
     </div>
@@ -70,22 +63,7 @@ const techStack = ["Astro", "Tailwind CSS v4", "Markdown", "Cloudflare Pages"];
     <div class="mx-auto max-w-3xl px-6 py-12">
       <h2 class="text-xl font-bold tracking-tight">このサイトについて</h2>
       <p class="mt-4 leading-relaxed text-foreground-2">
-        ポートフォリオと技術メモを置く場所です。UI は
-        <a
-          href="/styleguide/"
-          class="font-medium text-accent underline decoration-accent/30 underline-offset-4 hover:text-accent-hover"
-        >
-          デザイントークン
-        </a>
-        を単一の情報源として設計しており、色や書体の変更は
-        <code class="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
-          >src/styles/global.css</code
-        >
-        の
-        <code class="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em]"
-          >@theme</code
-        >
-        で一元管理しています。
+        ポートフォリオと技術メモを置く場所です。
       </p>
       <p class="mt-5 font-mono text-xs text-foreground-3">
         {techStack.join(" / ")}
